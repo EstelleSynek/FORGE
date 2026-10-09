@@ -36,6 +36,20 @@ All fiber-optic data are from **well 16B(78)-32** (production well) during cross
 **GDR 1565 — Neubrex Well 16B(78)-32 Circulation Test Fiber Optics Monitoring Data and Reports – July 2023** · DOI [10.15121/2222469](https://doi.org/10.15121/2222469)
 `2023-07_circulation/GDR1565_Neubrex_DAS_DSS_DTS_FBE_data/`
 - `Neubrex.zip` (3.36 GB) — DAS, absolute strain, strain change, strain change rate, DTS, FBE; includes collection report and read instructions. Processed Sep–Oct 2023.
+- **Extracted** to `Neubrex/` (14 files, 3.95 GB). Times in files are local (UTC−06:00); `stamps_unix` is µs UTC. Two "evos":
+  - evo 0 — Jul 13 01:13 – Jul 14 11:13 (cementing / post-cementing)
+  - evo 1 — Jul 15 12:18 – Jul 20 15:40 (circulation period)
+
+  | File | Content | Size |
+  |---|---|---|
+  | `... DTS - mmf 2 - evo 0/1.h5` | DTS, °F, ~3.32 ft / ~257 s; data (time × depth); in-well fiber ends ≈10,110 ft MD | 3.3 / 15.9 MB |
+  | `... absolute strain - smf 2 - evo 0/1.h5` | Brillouin absolute strain | 13 / 1.6 MB |
+  | `... strain change - smf 2 - evo 0/1.h5` | RFS DSS strain change | 137 / 345 MB |
+  | `... strain change rate - smf 2 - evo 0/1.h5` | RFS DSS strain change rate | 109 / 263 MB |
+  | `... FBE - smf 1 - part 1/2/3 - session 2.h5` | DAS frequency-band energy (PRODML), Jul 17–20 | 0.28 / 2.49 / 0.28 GB |
+  | `FORGE ... EVO 0 / EVO 1 - Neubrex Transmittal document.pdf` | File structure & time coverage | |
+  | `FORGE ... circulation test - DAS - FBE_rev_guzik_jurick_neubrex .pdf` | DAS-FBE report (same as GDR 1559) | |
+- Notebook: `workspace/notebooks/01_GDR1565_DTS_waterfall.ipynb` (DTS waterfalls via JIN_pylib `Data2D`).
 
 **GDR 1747 — 3-2417: DAS Microseismic Event Records From Circulation Test – July 2023** (Rice / FOGMORE) · https://gdr.openei.org/submissions/1747
 `2023-07_circulation/GDR1747_DAS_microseismic_event_records_SEGY/`
@@ -62,7 +76,12 @@ All fiber-optic data are from **well 16B(78)-32** (production well) during cross
 
 **GDR 1617 — Well 16B(78)-32 Distributed Temperature Sensing Data from April and May 2024** · DOI [10.15121/2407047](https://doi.org/10.15121/2407047)
 `2024-04_circulation/GDR1617_Neubrex_DTS_Apr-May2024/`
-- `Stimulation Neubrex DTS_new.zip` (5.17 GB) — HDF5 DTS + PowerPoint report. Yokogawa 3000DTSX, 3.28 ft spatial / 129 s temporal sampling.
+- `Stimulation Neubrex DTS_new.zip` (5.17 GB) — HDF5 DTS + report (a PDF, not a PowerPoint as the GDR page says). Yokogawa 3000DTSX, 3.28 ft spatial / 129 s temporal sampling.
+- ⚠ **The zip as published on GDR is corrupt** (`unzip -t` fails; local size matches GDR exactly, so it is the source file). The central directory was edited to rename the PDF "rev 2" → "rev3" without rewriting the entries, so offsets are wrong. All data inside is intact. The five HDF5 entries `... evo 3.h5` and `... evo 3 (1)…(4).h5` are **byte-identical** (same CRC32 0xe3fc0fa6, 1,110,227,437 B), i.e. one dataset duplicated.
+- **Recovered** (by scanning local headers, CRC32 verified) to `Stimulation Neubrex DTS/`:
+  - `Utah Forge 16B(78)-32 - DTS calibrated - mmf 2 - evo 3.h5` (1.11 GB) — 86,947 traces × 4,222 depths, **2024-04-02 17:57 – 2024-05-02 22:30 UTC** (TimeZoneOffset −00:00), depth −0.8 to 14,067 ft (includes fiber beyond the in-well section), °F. Same `data`/`depth`/`stamps`/`stamps_unix` layout as GDR 1565.
+  - `FORGE Utah Beaver well 16B(78)-32 - frac period Neubrex thermal DTS data analysis final rev 2.pdf` — rev 2 of the analysis report (rev3 is in GDR 1624).
+  - The four duplicate copies were not extracted.
 - ⚠ Third-party P-T gauge data unreliable after 2024-04-20 (per GDR).
 - ⚠ No standalone RFS-DSS strain dataset for the April 2024 circulation was found on GDR; strain results appear only in reports (1685, 1624, 1670).
 
@@ -129,6 +148,14 @@ All fiber-optic data are from **well 16B(78)-32** (production well) during cross
 `related/GDR1837_UTAustin_4-2492_fiber_diagnostics_final_report/`
 - Final technical report (16.13 MB PDF); closeout presentation video (269 MB MP4). Covers DTS/DAS/DSS integration for stimulation and circulation in 16A/16B.
 
+## Download verification (2026-10-09)
+
+- All 39 files from 16 submissions downloaded; every size matches the GDR listing (GDR uses binary units, 1 kB = 1024 B). Total ≈ 38.5 GB of downloads, ≈ 44 GB on disk including extracted files.
+- `unzip -t` passes for GDR 1565 and 1670 zips; **fails for GDR 1617** (see above, recovered). `gzip -t` passes for GDR 1747 `SEG.tar.gz` (not extracted, 17 GB).
+- All 25 HDF5 files (downloaded + extracted) open with h5py.
+- SHA-256 of every file: `_metadata/checksums.sha256` (verify with `cd /data2/FORGE/data && sha256sum -c _metadata/checksums.sha256`).
+- Archives left packed: GDR 1670 zip (reports), GDR 1747 `SEG.tar.gz`.
+
 ## Known gaps / caveats
 
 1. August 2025 DAS (GDR 1827) not yet published.
@@ -137,3 +164,4 @@ All fiber-optic data are from **well 16B(78)-32** (production well) during cross
 4. 1825 filename typo "16B(79)-32".
 5. One listing of the 2025 report gives an acquisition date of August 2024; the report title and data say August 2025.
 6. Multimode-fiber DTS requires correction for nonlinear optical losses (see 1624 DTS analysis report).
+7. GDR 1617 zip is corrupt as published (recoverable; see above) and contains five identical copies of the same HDF5.
